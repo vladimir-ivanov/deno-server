@@ -1,45 +1,27 @@
-name: Deno CI
+name: updates
 on:
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: '0 9 * * *'
 jobs:
-  build:
-    name: ${{ matrix.kind }} ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    strategy:
-      matrix:
-        os: [macOS-latest, ubuntu-latest, windows-latest]
-    env:
-      GH_ACTIONS: true
-      DENO_BUILD_MODE: release
-      V8_BINARY: true
+  cron:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Setup Deno
-        uses: denolib/setup-deno@master
-        with:
-          deno-version: 1.x
-      - name: Tests
-        run: deno test --allow-read
-  release:
-    name: Release
-    runs-on: ubuntu-18.04
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.17.0
-      - name: Setup package.json
-        run: echo '{"name":"@denorg/starter","version":"0.0.0","publishConfig":{"access":"public"},"scripts":{"semantic-release":"semantic-release"},"repository":{"type":"git","url":"https://github.com/denorg/starter.git"},"author":"Denorg<hellp@den.org.in>","license":"MIT","bugs":{"url":"https://github.com/denorg/starter/issues"},"homepage":"https://denorg.github.io/starter/","devDependencies":{"semantic-release":"^17.0.4","semantic-release-gitmoji":"^1.3.3"}}' > package.json
-      - name: Install dependencies
-        run: npm install
-      - name: Release
-        run: npx semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Call our API route
+        run: |
+          curl --request POST \
+          --url  'https://selfservice.mybfc.bracknell-forest.gov.uk/w/webpage/waste-collection-days?webpage_subpage_id=PAG0000570FEFFB1&webpage_token=390170046582b0e3d7ca68ef1d6b4829ccff0b1ae9c531047219c6f9b5295738&widget_action=handle_event' \
+          --header 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+          --header 'Accept: application/json, text/javascript, */*; q=0.01' \
+          --header 'Sec-Fetch-Site: same-origin' \
+          --header 'Accept-Language: en-GB,en;q=0.9' \
+          --header 'Accept-Encoding: gzip, deflate, br' \
+          --header 'Sec-Fetch-Mode: cors' \
+          --header 'Host: selfservice.mybfc.bracknell-forest.gov.uk' \
+          --header 'Origin: https://selfservice.mybfc.bracknell-forest.gov.uk' \
+          --header 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15' \
+          --header 'Content-Length: 368' \
+          --header 'Connection: keep-alive' \
+          --header 'Sec-Fetch-Dest: empty' \
+          --header 'Cookie: wscrCookieConsent=1=true&2=true&3=true&4=true&5=true&version=20231212-001; FEFFB3-mats_session=e2m07r9kddu3aa3f3vcqa2abi9; last_lang=en; nmstat=718fda3a-ca08-9550-a88a-049b970084d8' \
+          --header 'X-Requested-With: XMLHttpRequest' \
+          --data 'code_action=find_rounds&code_params=%7B%22addressId%22%3A%22453081%22%7D&_session_storage=%7B%22%2Fw%2Fwebpage%2Fwaste-collection-days%22%3A%7B%7D%2C%22_global%22%3A%7B%22destination_stack%22%3A%5B%22w%2Fwebpage%2Fwaste-collection-days%22%5D%7D%7D&action_cell_id=PCL0003988FEFFB1&action_page_id=PAG0000570FEFFB1&form_check_ajax=40e6b0613be6db890b494131ddc5150598083554'
